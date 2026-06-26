@@ -149,7 +149,8 @@ def extract_etl(file_path: Path, output_dir: Path):
         record_size = 576
         mode = "B-Type"
     else:
-        raise ValueError(f"Unknown record format for file size {file_size} of {file_path.name}")
+        print(f"⚠️ Warning: Unknown record format for file size {file_size} of {file_path.name}. Skipping extraction.")
+        return
         
     num_records = file_size // record_size
     
