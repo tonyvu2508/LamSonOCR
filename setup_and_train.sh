@@ -88,19 +88,26 @@ else
     done
 fi
 
-# 6. Execute Training
+# 6. Execute Training & Testing
+echo "🧪 Running pytest suite to verify code correctness..."
+pytest tests/ -v
+
 echo "🏋️ Starting OCR Model Training..."
-# Detect if CUDA/GPU is available
-python -c "
-import torch
-print('CUDA (Nvidia GPU) Available:', torch.cuda.is_available())
-if torch.cuda.is_available():
-    print('Device Name:', torch.cuda.get_device_name(0))
-"
+# Auto-detect best device for training and evaluation
+DEVICE=$(python3 -c "import torch; print('cuda' if torch.cuda.is_available() else 'cpu')")
+echo "🖥️ Target hardware device: $DEVICE"
+if [ "$DEVICE" = "cuda" ]; then
+    python3 -c "import torch; print('   GPU Device Name:', torch.cuda.get_device_name(0))"
+fi
 
 python main.py train --train-data data/all_train --epochs 50 --batch-size 64
 
+# 7. Execute Benchmark / Evaluation
+echo "📋 Automatically Running Benchmark & Evaluation..."
+python main.py evaluate --checkpoint checkpoints/best_model.pt --data data/val --device $DEVICE
+
 echo "============================================="
-echo "🎉 Setup and Training complete!"
+echo "🎉 Setup, Training, and Benchmarking complete!"
 echo "Model checkpoint saved to: checkpoints/best_model.pt"
 echo "============================================="
+
