@@ -53,6 +53,31 @@ python main.py generate --output data/val --num-samples 1000
 
 # 4. Extract ETL Datasets (if present)
 echo "📂 Checking for ETL binary datasets..."
+
+# Helper function to unzip if needed
+unzip_if_needed() {
+    local zip_file=$1
+    local target_dir=$2
+    if [ -f "$zip_file" ]; then
+        if [ ! -d "$target_dir" ]; then
+            echo "📦 Unzipping $zip_file..."
+            python3 -c "import zipfile; zipfile.ZipFile('$zip_file').extractall('ETL')"
+            echo "✅ Extracted $zip_file"
+        else
+            echo "ℹ️ $target_dir already exists. Skipping unzip."
+        fi
+    fi
+}
+
+unzip_if_needed "ETL/ETL1.zip" "ETL/ETL1"
+unzip_if_needed "ETL/ETL2.zip" "ETL/ETL2"
+unzip_if_needed "ETL/ETL3.zip" "ETL/ETL3"
+unzip_if_needed "ETL/ETL4.zip" "ETL/ETL4"
+unzip_if_needed "ETL/ETL5.zip" "ETL/ETL5"
+unzip_if_needed "ETL/ETL6.zip" "ETL/ETL6"
+unzip_if_needed "ETL/ETL7.zip" "ETL/ETL7"
+unzip_if_needed "ETL/ETL8B.zip" "ETL/ETL8B"
+
 HAS_ETL=false
 
 # Check ETL4 (Hiragana)
