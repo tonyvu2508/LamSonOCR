@@ -47,6 +47,10 @@ class Trainer:
         # Ensure checkpoint dir exists
         self.settings.model_dir.mkdir(parents=True, exist_ok=True)
 
+        # GradScaler for AMP
+        self.use_amp = self.device.type == "cuda"
+        self.scaler = torch.cuda.amp.GradScaler(enabled=self.use_amp)
+
     def _train_one_epoch(self, dataloader: DataLoader) -> float:
         """Train for one epoch, return average loss."""
         self.model.train()
@@ -59,20 +63,24 @@ class Trainer:
             labels = labels.to(self.device)
             label_lengths = label_lengths.to(self.device)
 
-            # Forward
-            log_probs = self.model(images)  # (T, B, C)
-            T = log_probs.shape[0]
-            B = log_probs.shape[1]
-            input_lengths = torch.full((B,), T, dtype=torch.int32, device=self.device)
-
-            # CTC Loss
-            loss = self.criterion(log_probs, labels, input_lengths, label_lengths)
+            # Forward with AMP autocast
+            with torch.cuda.amp.autocast(enabled=self.use_amp):
+                log_probs = self.model(images)  # (T, B, C)
+                T = log_probs.shape[0]
+                B = log_probs.shape[1]
+                input_lengths = torch.full((B,), T, dtype=torch.int32, device=self.device)
+                loss = self.criterion(log_probs, labels, input_lengths, label_lengths)
 
             # Backward
             self.optimizer.zero_grad()
-            loss.backward()
+            self.scaler.scale(loss).backward()
+            
+            # Unscale for gradient clipping
+            self.scaler.unscale_(self.optimizer)
             torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=5.0)
-            self.optimizer.step()
+            
+            self.scaler.step(self.optimizer)
+            self.scaler.update()
 
             loss_val = loss.item()
             total_loss += loss_val
@@ -93,11 +101,13 @@ class Trainer:
             images = images.to(self.device)
             labels = labels.to(self.device)
             label_lengths = label_lengths.to(self.device)
-            log_probs = self.model(images)
-            T = log_probs.shape[0]
-            B = log_probs.shape[1]
-            input_lengths = torch.full((B,), T, dtype=torch.int32, device=self.device)
-            loss = self.criterion(log_probs, labels, input_lengths, label_lengths)
+            
+            with torch.cuda.amp.autocast(enabled=self.use_amp):
+                log_probs = self.model(images)
+                T = log_probs.shape[0]
+                B = log_probs.shape[1]
+                input_lengths = torch.full((B,), T, dtype=torch.int32, device=self.device)
+                loss = self.criterion(log_probs, labels, input_lengths, label_lengths)
             
             loss_val = loss.item()
             total_loss += loss_val
@@ -116,12 +126,16 @@ class Trainer:
         Returns:
             History dict with 'train_loss', 'val_loss' lists
         """
+        # Automatically use pin_memory on CUDA to speed up transfer to GPU
+        pin_mem = (self.device.type == "cuda")
+        
         train_loader = DataLoader(
             train_dataset,
             batch_size=self.settings.batch_size,
             shuffle=True,
             collate_fn=ocr_collate_fn,
             num_workers=self.settings.num_workers,
+            pin_memory=pin_mem,
         )
 
         val_loader = None
@@ -132,6 +146,7 @@ class Trainer:
                 shuffle=False,
                 collate_fn=ocr_collate_fn,
                 num_workers=self.settings.num_workers,
+                pin_memory=pin_mem,
             )
 
         history = {"train_loss": [], "val_loss": []}
