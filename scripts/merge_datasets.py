@@ -3,7 +3,7 @@ import csv
 from pathlib import Path
 
 def merge_datasets():
-    data_dir = Path("/Volumes/SpaceX/WorkSpace/python/LamSonOcr/data")
+    data_dir = Path(__file__).resolve().parent.parent / "data"
     output_dir = data_dir / "all_train"
     output_dir.mkdir(parents=True, exist_ok=True)
     
