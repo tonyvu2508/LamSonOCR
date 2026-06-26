@@ -96,25 +96,23 @@ unzip_if_needed "ETL/ETL8B.zip" "ETL/ETL8B"
 
 HAS_ETL=false
 
-# Check ETL4 (Hiragana)
-if [ -f "ETL/ETL4/ETL4C" ]; then
-    echo "🇯🇵 Found ETL4C. Extracting Hiragana character images..."
-    python scripts/prepare_etl.py --input ETL/ETL4/ETL4C --output data/etl_train
-    HAS_ETL=true
-fi
-
-# Check ETL3 (Alphanumeric/Katakana)
-if [ -f "ETL/ETL3/ETL3C_1" ]; then
-    echo "🔢 Found ETL3C_1. Extracting Alphanumeric character images..."
-    python scripts/prepare_etl.py --input ETL/ETL3/ETL3C_1 --output data/etl_train
-    HAS_ETL=true
-fi
-
-if [ -f "ETL/ETL3/ETL3C_2" ]; then
-    echo "🔢 Found ETL3C_2. Extracting Alphanumeric character images..."
-    python scripts/prepare_etl.py --input ETL/ETL3/ETL3C_2 --output data/etl_train
-    HAS_ETL=true
-fi
+# Loop through all subdirectories in ETL/ to find and extract data files
+for etl_dir in ETL/ETL*; do
+    if [ -d "$etl_dir" ]; then
+        echo "📂 Checking folder $etl_dir..."
+        for etl_file in "$etl_dir"/*; do
+            if [ -f "$etl_file" ]; then
+                file_name=$(basename "$etl_file")
+                # Skip metadata and zip files
+                if [[ "$file_name" != *INFO* && "$file_name" != *info* && "$file_name" != *.txt && "$file_name" != *.zip && "$file_name" != *.dat && "$file_name" != *.json ]]; then
+                    echo "  📦 Extracting $file_name..."
+                    python scripts/prepare_etl.py --input "$etl_file" --output data/etl_train
+                    HAS_ETL=true
+                fi
+            fi
+        done
+    fi
+done
 
 # 5. Merge Datasets
 echo "🔄 Merging all available datasets..."
