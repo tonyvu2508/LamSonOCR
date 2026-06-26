@@ -93,6 +93,9 @@ unzip_if_needed "ETL/ETL5.zip" "ETL/ETL5"
 unzip_if_needed "ETL/ETL6.zip" "ETL/ETL6"
 unzip_if_needed "ETL/ETL7.zip" "ETL/ETL7"
 unzip_if_needed "ETL/ETL8B.zip" "ETL/ETL8B"
+unzip_if_needed "ETL/ETL8G.zip" "ETL/ETL8G"
+unzip_if_needed "ETL/ETL9B.zip" "ETL/ETL9B"
+unzip_if_needed "ETL/ETL9G.zip" "ETL/ETL9G"
 
 HAS_ETL=false
 
