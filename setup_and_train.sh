@@ -160,17 +160,17 @@ fi
 
 echo "🏋️ Starting OCR Model Training..."
 # Auto-detect best device for training and evaluation
-DEVICE=$(python3 -c "import torch; print('cuda' if torch.cuda.is_available() else 'cpu')")
+DEVICE=$(venv/bin/python -c "import torch; print('cuda' if torch.cuda.is_available() else 'cpu')")
 echo "🖥️ Target hardware device: $DEVICE"
 if [ "$DEVICE" = "cuda" ]; then
-    python3 -c "import torch; print('   GPU Device Name:', torch.cuda.get_device_name(0))"
+    venv/bin/python -c "import torch; print('   GPU Device Name:', torch.cuda.get_device_name(0))"
 fi
 
-python main.py train --train-data data/all_train --epochs 50 --batch-size 256 "${MAIN_ARGS[@]}"
+venv/bin/python main.py train --train-data data/all_train --epochs 50 --batch-size 256 "${MAIN_ARGS[@]}"
 
 # 7. Execute Benchmark / Evaluation
 echo "📋 Automatically Running Benchmark & Evaluation..."
-python main.py evaluate --checkpoint checkpoints/best_model.pt --data data/val --device $DEVICE
+venv/bin/python main.py evaluate --checkpoint checkpoints/best_model.pt --data data/val --device $DEVICE
 
 echo "============================================="
 echo "🎉 Setup, Training, and Benchmarking complete!"
