@@ -2,6 +2,10 @@
 import argparse
 from pathlib import Path
 import os
+import sys
+
+# Ensure the project root is in python path
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 # Set fallback for MPS unsupported ops like CTC loss
 os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
