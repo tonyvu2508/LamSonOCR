@@ -53,7 +53,8 @@ class Trainer:
         total_loss = 0.0
         num_batches = 0
 
-        for images, labels, label_lengths, _ in dataloader:
+        pbar = tqdm(dataloader, desc="  Train Batch", leave=False)
+        for images, labels, label_lengths, _ in pbar:
             images = images.to(self.device)
             labels = labels.to(self.device)
             label_lengths = label_lengths.to(self.device)
@@ -73,8 +74,10 @@ class Trainer:
             torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=5.0)
             self.optimizer.step()
 
-            total_loss += loss.item()
+            loss_val = loss.item()
+            total_loss += loss_val
             num_batches += 1
+            pbar.set_postfix(loss=f"{loss_val:.4f}")
 
         return total_loss / max(num_batches, 1)
 
@@ -85,7 +88,8 @@ class Trainer:
         total_loss = 0.0
         num_batches = 0
 
-        for images, labels, label_lengths, _ in dataloader:
+        pbar = tqdm(dataloader, desc="  Val Batch", leave=False)
+        for images, labels, label_lengths, _ in pbar:
             images = images.to(self.device)
             labels = labels.to(self.device)
             label_lengths = label_lengths.to(self.device)
@@ -94,8 +98,11 @@ class Trainer:
             B = log_probs.shape[1]
             input_lengths = torch.full((B,), T, dtype=torch.int32, device=self.device)
             loss = self.criterion(log_probs, labels, input_lengths, label_lengths)
-            total_loss += loss.item()
+            
+            loss_val = loss.item()
+            total_loss += loss_val
             num_batches += 1
+            pbar.set_postfix(loss=f"{loss_val:.4f}")
 
         return total_loss / max(num_batches, 1)
 
