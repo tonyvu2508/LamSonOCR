@@ -90,7 +90,8 @@ fi
 
 # 6. Execute Training & Testing
 echo "🧪 Running pytest suite to verify code correctness..."
-PYTHONPATH=. pytest tests/ -v
+PYTHONPATH=. venv/bin/python -m pytest tests/ -v
+
 
 
 echo "🏋️ Starting OCR Model Training..."
