@@ -169,6 +169,7 @@ class Trainer:
     def _save_checkpoint(self, filename: str, epoch: int, loss: float):
         """Save model checkpoint."""
         path = self.settings.model_dir / filename
+        path.parent.mkdir(parents=True, exist_ok=True)
         torch.save({
             "epoch": epoch,
             "model_state_dict": self.model.state_dict(),
