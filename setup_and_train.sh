@@ -18,7 +18,8 @@ python3 --version
 
 # 2. Setup virtual environment
 echo "⚙️ Setting up virtual environment..."
-if [ ! -d "venv" ]; then
+if [ ! -f "venv/bin/python" ]; then
+    rm -rf venv
     python3 -m venv venv
     echo "✅ Virtual environment 'venv' created."
 else
