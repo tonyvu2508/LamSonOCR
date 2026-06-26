@@ -8,7 +8,7 @@ import torch
 class Settings:
     # Paths
     project_root: Path = field(
-        default_factory=lambda: Path("/Volumes/SpaceX/WorkSpace/python/LamSonOcr")
+        default_factory=lambda: Path(__file__).resolve().parent.parent
     )
     data_dir: Path = field(default=None)
     model_dir: Path = field(default=None)
