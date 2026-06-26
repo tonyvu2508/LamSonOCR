@@ -54,6 +54,22 @@ python main.py generate --output data/val --num-samples 1000
 # 4. Extract ETL Datasets (if present)
 echo "📂 Checking for ETL binary datasets..."
 
+# Combine ETL zip parts if present
+if [ -d "ETL_parts" ]; then
+    echo "🧩 Re-combining ETL zip parts..."
+    mkdir -p ETL
+    for part_file in ETL_parts/*.zip.part_000; do
+        if [ -f "$part_file" ]; then
+            base_name=$(basename "$part_file" .part_000)
+            target_zip="ETL/$base_name"
+            if [ ! -f "$target_zip" ]; then
+                echo "  Re-combining $base_name..."
+                cat ETL_parts/"$base_name".part_* > "$target_zip"
+            fi
+        fi
+    done
+fi
+
 # Helper function to unzip if needed
 unzip_if_needed() {
     local zip_file=$1
