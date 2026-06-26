@@ -99,4 +99,4 @@ Toàn bộ mã nguồn đi kèm bộ unit/integration test bao phủ đầy đ�
 ```bash
 pytest tests/ -v
 ```
-# LamSonOCR
+
