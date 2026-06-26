@@ -92,8 +92,8 @@ def ocr_collate_fn(batch):
     for img in images:
         pad_w = max_w - img.shape[2]
         if pad_w > 0:
-            # Pad with zeros on the right
-            padded = torch.nn.functional.pad(img, (0, pad_w), value=0)
+            # Pad with white background (1.0) on the right
+            padded = torch.nn.functional.pad(img, (0, pad_w), value=1.0)
         else:
             padded = img
         padded_images.append(padded)

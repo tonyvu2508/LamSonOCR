@@ -74,7 +74,7 @@ def extract_etl(file_path: Path, output_dir: Path):
             p2 = b & 0x0F
             pixels.extend([p1, p2])
             
-        img_array = np.array(pixels, dtype=np.uint8) * 17
+        img_array = 255 - (np.array(pixels, dtype=np.uint8) * 17)
         img_array = img_array.reshape(76, 72)
         
         # Convert to PIL and resize to 32px height to match our CRNN input
