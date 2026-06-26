@@ -90,7 +90,8 @@ fi
 
 # 6. Execute Training & Testing
 echo "🧪 Running pytest suite to verify code correctness..."
-pytest tests/ -v
+PYTHONPATH=. pytest tests/ -v
+
 
 echo "🏋️ Starting OCR Model Training..."
 # Auto-detect best device for training and evaluation
