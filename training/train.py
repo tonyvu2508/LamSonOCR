@@ -55,12 +55,14 @@ class Trainer:
 
         for images, labels, label_lengths, _ in dataloader:
             images = images.to(self.device)
+            labels = labels.to(self.device)
+            label_lengths = label_lengths.to(self.device)
 
             # Forward
             log_probs = self.model(images)  # (T, B, C)
             T = log_probs.shape[0]
             B = log_probs.shape[1]
-            input_lengths = torch.full((B,), T, dtype=torch.int32)
+            input_lengths = torch.full((B,), T, dtype=torch.int32, device=self.device)
 
             # CTC Loss
             loss = self.criterion(log_probs, labels, input_lengths, label_lengths)
@@ -85,10 +87,12 @@ class Trainer:
 
         for images, labels, label_lengths, _ in dataloader:
             images = images.to(self.device)
+            labels = labels.to(self.device)
+            label_lengths = label_lengths.to(self.device)
             log_probs = self.model(images)
             T = log_probs.shape[0]
             B = log_probs.shape[1]
-            input_lengths = torch.full((B,), T, dtype=torch.int32)
+            input_lengths = torch.full((B,), T, dtype=torch.int32, device=self.device)
             loss = self.criterion(log_probs, labels, input_lengths, label_lengths)
             total_loss += loss.item()
             num_batches += 1
