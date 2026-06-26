@@ -69,7 +69,9 @@ class Trainer:
                 T = log_probs.shape[0]
                 B = log_probs.shape[1]
                 input_lengths = torch.full((B,), T, dtype=torch.int32, device=self.device)
-                loss = self.criterion(log_probs, labels, input_lengths, label_lengths)
+                
+                # Force CTC Loss computation in FP32 to prevent underflow/NaN issues
+                loss = self.criterion(log_probs.float(), labels, input_lengths, label_lengths)
 
             # Backward
             self.optimizer.zero_grad()
@@ -107,7 +109,7 @@ class Trainer:
                 T = log_probs.shape[0]
                 B = log_probs.shape[1]
                 input_lengths = torch.full((B,), T, dtype=torch.int32, device=self.device)
-                loss = self.criterion(log_probs, labels, input_lengths, label_lengths)
+                loss = self.criterion(log_probs.float(), labels, input_lengths, label_lengths)
             
             loss_val = loss.item()
             total_loss += loss_val
