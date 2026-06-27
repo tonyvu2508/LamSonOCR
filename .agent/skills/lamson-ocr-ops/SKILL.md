@@ -18,9 +18,28 @@ venv/bin/python -m pytest tests/ -v
 
 ### 2. Thiết lập & Huấn luyện (Setup & Training)
 Để bắt đầu quá trình huấn luyện trực tiếp không qua giải nén (Zero-Extraction) với GPU RTX 3090 (đọc từ file nhị phân trong thư mục `ETL` hoặc `ETL_parts`):
-```bash
-./setup_and_train.sh --train --batch-size 1024 --epochs 200
-```
+
+Để việc huấn luyện không bị ngắt quãng khi mất kết nối mạng, hãy sử dụng **tmux** để chạy ngầm trên máy chủ:
+
+*   **Tạo một session tmux mới tên là `ocr`**:
+    ```bash
+    tmux new -s ocr
+    ```
+*   **Chạy lệnh huấn luyện bên trong tmux**:
+    ```bash
+    ./setup_and_train.sh --train --batch-size 1024 --epochs 200
+    ```
+*   **Thoát tạm thời ra ngoài (Detach session)**:
+    Ấn tổ hợp phím `Ctrl + B` rồi ấn phím `D`.
+*   **Quay lại session đang chạy (Attach session)**:
+    ```bash
+    tmux attach -t ocr
+    ```
+*   **Liệt kê các session đang có**:
+    ```bash
+    tmux ls
+    ```
+
 *Note*: Nếu chạy lần đầu, hãy chắc chắn đã `git pull` bản mới nhất và đã kích hoạt môi trường ảo.
 
 ### 3. Git Operations
