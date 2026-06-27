@@ -31,7 +31,7 @@ class Charset:
         "東西南北海道府県市区町村"
         "通常特別限定"
     )
-    SYMBOLS = " /-()[]・。、:;\"'.!?@#%&*+=~^_|\\<>{}"
+    SYMBOLS = " /-()[]・。、:;\"'.!?@#%&*+=~^_|\\<>{},"
 
     def __init__(self):
         # Build charset: BLANK at index 0

@@ -39,10 +39,13 @@ class OCRDataset(Dataset):
         with open(label_file, encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for row in reader:
-                self.samples.append({
-                    "image": row["image"],
-                    "text": row["text"],
-                })
+                text = row["text"]
+                # Skip samples that encode to an empty sequence (prevents CTC loss NaNs)
+                if len(self.charset.encode(text)) > 0:
+                    self.samples.append({
+                        "image": row["image"],
+                        "text": text,
+                    })
 
     def __len__(self) -> int:
         return len(self.samples)
