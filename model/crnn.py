@@ -3,6 +3,11 @@ import torch
 import torch.nn as nn
 
 
+class MeanHeight(nn.Module):
+    def forward(self, x):
+        return x.mean(dim=2, keepdim=True)
+
+
 class _CNNBackbone(nn.Module):
     """Lightweight CNN feature extractor.
 
@@ -45,7 +50,7 @@ class _CNNBackbone(nn.Module):
             nn.Conv2d(512, 512, kernel_size=3, padding=1),
             nn.BatchNorm2d(512),
             nn.ReLU(inplace=True),
-            nn.AdaptiveAvgPool2d((1, None)),  # Collapse height to 1
+            MeanHeight(),  # Collapse height to 1 safely for torch.compile
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
