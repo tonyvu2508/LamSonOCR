@@ -38,23 +38,26 @@ class Charset:
         if vocab is not None:
             chars = list(vocab)
         else:
-            # Try to build dynamically from dataset labels
-            chars = self._load_dynamic_vocab()
-            if not chars:
-                # Fallback to default predefined groups
-                chars = []
-                for group in [
-                    self.DIGITS,
-                    self.ENGLISH_UPPER,
-                    self.ENGLISH_LOWER,
-                    self.HIRAGANA,
-                    self.KATAKANA,
-                    self.KANJI_COMMON,
-                    self.SYMBOLS,
-                ]:
-                    for c in group:
-                        if c not in chars:
-                            chars.append(c)
+            # Always start with predefined groups
+            chars = []
+            for group in [
+                self.DIGITS,
+                self.ENGLISH_UPPER,
+                self.ENGLISH_LOWER,
+                self.HIRAGANA,
+                self.KATAKANA,
+                self.KANJI_COMMON,
+                self.SYMBOLS,
+            ]:
+                for c in group:
+                    if c not in chars:
+                        chars.append(c)
+                        
+            # Merge dynamically found characters from dataset labels (if any new exist)
+            dynamic_chars = self._load_dynamic_vocab()
+            for c in dynamic_chars:
+                if c not in chars:
+                    chars.append(c)
 
         self._vocab_list = chars
         self._idx_to_char = {0: self.BLANK}
