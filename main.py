@@ -32,8 +32,10 @@ def cmd_train(args):
     from config.charset import Charset
     from config.settings import Settings
     from data.dataset import OCRDataset
+    from data.etl_binary_dataset import ETLBinaryDataset
     from data.augmentation import OCRAugmentation
     from training.train import Trainer
+    from torch.utils.data import ConcatDataset
 
     cs = Charset()
     settings = Settings(
@@ -49,6 +51,16 @@ def cmd_train(args):
         charset=cs,
         transform=OCRAugmentation() if not args.no_augment else None,
     )
+    
+    if args.etl_dir:
+        etl_ds = ETLBinaryDataset(
+            etl_dir=args.etl_dir,
+            charset=cs,
+            target_height=settings.img_height,
+            transform=OCRAugmentation() if not args.no_augment else None,
+        )
+        if len(etl_ds) > 0:
+            train_ds = ConcatDataset([train_ds, etl_ds])
 
     val_ds = None
     if args.val_data:
@@ -136,6 +148,7 @@ def main():
     trn.add_argument("--epochs", type=int, default=50)
     trn.add_argument("--lr", type=float, default=0.001)
     trn.add_argument("--checkpoint-dir", type=str, default=None)
+    trn.add_argument("--etl-dir", type=str, default=None, help="Directory containing raw ETL binary files")
     trn.add_argument("--no-augment", action="store_true")
 
     # Evaluate

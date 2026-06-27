@@ -111,23 +111,10 @@ if [ "$TRAIN_ONLY" = "false" ]; then
 
     HAS_ETL=false
 
-    # Loop through all subdirectories in ETL/ to find and extract data files
-    for etl_dir in ETL/ETL*; do
-        if [ -d "$etl_dir" ]; then
-            echo "📂 Checking folder $etl_dir..."
-            for etl_file in "$etl_dir"/*; do
-                if [ -f "$etl_file" ]; then
-                    file_name=$(basename "$etl_file")
-                    # Skip metadata and zip files
-                    if [[ "$file_name" != *INFO* && "$file_name" != *info* && "$file_name" != *.txt && "$file_name" != *.zip && "$file_name" != *.dat && "$file_name" != *.json ]]; then
-                        echo "  📦 Extracting $file_name..."
-                        python scripts/prepare_etl.py --input "$etl_file" --output data/etl_train
-                        HAS_ETL=true
-                    fi
-                fi
-            done
-        fi
-    done
+    # The data extraction step (prepare_etl.py) has been REMOVED.
+    # The new pipeline reads directly from the binary ETL files using Memory Mapped files (mmap)
+    # which is significantly faster and uses less disk space.
+    echo "✅ Raw ETL binary files will be loaded directly into memory during training."
 
     # 5. Merge Datasets
     echo "🔄 Merging all available datasets..."
@@ -166,7 +153,7 @@ if [ "$DEVICE" = "cuda" ]; then
     venv/bin/python -c "import torch; print('   GPU Device Name:', torch.cuda.get_device_name(0))"
 fi
 
-venv/bin/python main.py train --train-data data/all_train --epochs 200 --batch-size 256 "${MAIN_ARGS[@]}"
+venv/bin/python main.py train --train-data data/all_train --etl-dir ETL --epochs 200 --batch-size 256 "${MAIN_ARGS[@]}"
 
 # 7. Execute Benchmark / Evaluation
 echo "📋 Automatically Running Benchmark & Evaluation..."
