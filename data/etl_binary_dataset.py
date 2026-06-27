@@ -137,7 +137,7 @@ class ETLBinaryDataset(Dataset):
                         char_bytes = chunk[2:4]
                         
                     char = decode_char(char_bytes)
-                    if char:
+                    if char and len(self.charset.encode(char)) > 0:
                         self.index_table.append((file_idx, i * record_size, mode, record_size, char))
 
         print(f"Index built: {len(self.index_table)} records found.")
@@ -223,10 +223,9 @@ class ETLBinaryDataset(Dataset):
         if self.transform:
             img = self.transform(img)
             
-        # Convert to tensor [1, H, W], normalized to [-1, 1]
+        # Convert to tensor [1, H, W], normalized to [0, 1] to match OCRDataset
         img_tensor = torch.from_numpy(np.array(img)).float() / 255.0
         img_tensor = img_tensor.unsqueeze(0)  # Add channel dim
-        img_tensor = img_tensor * 2.0 - 1.0  # [-1, 1]
         
         encoded_label = self.charset.encode(label)
         
