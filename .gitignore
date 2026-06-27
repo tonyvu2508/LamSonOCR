@@ -3,10 +3,9 @@ data/val/
 data/etl_train/
 data/all_train/
 checkpoints/
-venv/
+venv
 __pycache__/
 .pytest_cache/
 *.pyc
 .DS_Store
 ETL/
-scratch/
