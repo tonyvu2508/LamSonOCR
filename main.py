@@ -37,7 +37,16 @@ def cmd_train(args):
     from training.train import Trainer
     from torch.utils.data import ConcatDataset
 
-    cs = Charset()
+    import torch
+    
+    if args.resume and Path(args.resume).exists():
+        print(f"🔄 Loading vocabulary from checkpoint {args.resume} to prevent character mismatch...")
+        checkpoint = torch.load(args.resume, map_location="cpu")
+        vocab = checkpoint.get("vocab")
+        cs = Charset(vocab=vocab)
+    else:
+        cs = Charset()
+        
     settings = Settings(
         batch_size=args.batch_size,
         num_epochs=args.epochs,
