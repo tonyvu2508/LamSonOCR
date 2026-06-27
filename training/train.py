@@ -26,6 +26,15 @@ class Trainer:
             rnn_layers=settings.rnn_num_layers,
         ).to(self.device)
 
+        # Optimize for CUDA if available
+        if self.device.type == "cuda":
+            torch.backends.cudnn.benchmark = True
+            try:
+                print("⚡ Compiling CRNN model using torch.compile() for maximum GPU acceleration...")
+                self.model = torch.compile(self.model)
+            except Exception as e:
+                print(f"⚠️ Warning: Could not compile model with torch.compile: {e}. Running in standard mode.")
+
         # CTC Loss
         self.criterion = nn.CTCLoss(blank=charset.blank_idx, zero_infinity=True)
 
