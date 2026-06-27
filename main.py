@@ -77,8 +77,9 @@ def cmd_evaluate(args):
     from model.crnn import CRNN
     from benchmark.evaluate import Evaluator
 
-    cs = Charset()
     checkpoint = torch.load(args.checkpoint, map_location="cpu", weights_only=True)
+    vocab = checkpoint.get("vocab")
+    cs = Charset(vocab=vocab)
 
     model = CRNN(num_classes=checkpoint.get("charset_size", cs.num_classes))
     model.load_state_dict(checkpoint["model_state_dict"])

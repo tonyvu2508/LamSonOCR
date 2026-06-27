@@ -22,10 +22,12 @@ class OCRPredictor:
         self.device = torch.device(device)
         self.img_height = img_height
         self.img_max_width = img_max_width
-        self.charset = Charset()
 
         # Load model
         checkpoint = torch.load(checkpoint_path, map_location=self.device, weights_only=True)
+        vocab = checkpoint.get("vocab")
+        self.charset = Charset(vocab=vocab)
+        
         num_classes = checkpoint.get("charset_size", self.charset.num_classes)
         self.model = CRNN(num_classes=num_classes)
         self.model.load_state_dict(checkpoint["model_state_dict"])

@@ -204,5 +204,6 @@ class Trainer:
             "optimizer_state_dict": self.optimizer.state_dict(),
             "loss": loss,
             "charset_size": self.charset.num_classes,
+            "vocab": self.charset.vocab_list,
         }, path)
         print(f"Saved checkpoint: {path}")
