@@ -84,20 +84,40 @@ class ETLBinaryDataset(Dataset):
             if file_size == 0:
                 continue
 
-            if file_size % 2052 == 0:
+            # Auto-detect record type based on dataset family name in path
+            path_upper = f.path.upper() if hasattr(f, 'path') else str(f).upper()
+            
+            if "ETL1" in path_upper or "ETL6" in path_upper or "ETL7" in path_upper:
                 record_size = 2052
                 mode = "M-Type"
-            elif file_size % 2952 == 0:
+            elif "ETL3" in path_upper or "ETL4" in path_upper or "ETL5" in path_upper:
                 record_size = 2952
                 mode = "C-Type"
-            elif file_size % 512 == 0:
-                record_size = 512
-                mode = "B-Type"
-            elif file_size % 576 == 0:
-                record_size = 576
+            elif "ETL8" in path_upper or "ETL9" in path_upper:
+                # B-Type is either 512 or 576 bytes
+                if file_size % 512 == 0:
+                    record_size = 512
+                elif file_size % 576 == 0:
+                    record_size = 576
+                else:
+                    record_size = 576 # fallback
                 mode = "B-Type"
             else:
-                continue # Unknown format
+                # Fallback to modulo if no keyword matches
+                if file_size % 2052 == 0:
+                    record_size = 2052
+                    mode = "M-Type"
+                elif file_size % 2952 == 0:
+                    record_size = 2952
+                    mode = "C-Type"
+                elif file_size % 512 == 0:
+                    record_size = 512
+                    mode = "B-Type"
+                elif file_size % 576 == 0:
+                    record_size = 576
+                    mode = "B-Type"
+                else:
+                    continue
             
             file_idx = len(self.files)
             self.files.append(f)
