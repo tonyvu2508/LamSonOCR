@@ -14,6 +14,16 @@ MAIN_ARGS=()
 for arg in "$@"; do
     if [ "$arg" = "--train" ] || [ "$arg" = "--train-only" ]; then
         TRAIN_ONLY=true
+    elif [ "$arg" = "-h" ] || [ "$arg" = "--help" ]; then
+        echo "Usage: ./setup_and_train.sh [options]"
+        echo "Options:"
+        echo "  --train, --train-only   Skip setup and go straight to training"
+        echo "  --lr <float>            Set learning rate (default: 0.0002)"
+        echo "  --no-augment            Disable data augmentation during training"
+        echo "  --batch-size <int>      Set batch size (default: 256)"
+        echo "  --epochs <int>          Set number of epochs (default: 200)"
+        echo "  --resume <path>         Resume training from a checkpoint"
+        exit 0
     else
         MAIN_ARGS+=("$arg")
     fi

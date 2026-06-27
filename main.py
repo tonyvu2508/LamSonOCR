@@ -165,7 +165,7 @@ def main():
     trn.add_argument("--val-data", type=str, default=None, help="Validation data dir")
     trn.add_argument("--batch-size", type=int, default=64)
     trn.add_argument("--epochs", type=int, default=50)
-    trn.add_argument("--lr", type=float, default=0.001)
+    trn.add_argument("--lr", type=float, default=0.0002)
     trn.add_argument("--checkpoint-dir", type=str, default=None)
     trn.add_argument("--etl-dir", type=str, default=None, help="Directory containing raw ETL binary files")
     trn.add_argument("--resume", type=str, default=None, help="Path to checkpoint file (.pt) to resume training from")

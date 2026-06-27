@@ -25,9 +25,13 @@ venv/bin/python -m pytest tests/ -v
     ```bash
     tmux new -s ocr
     ```
-*   **Chạy lệnh huấn luyện bên trong tmux**:
+*   **Chạy lệnh huấn luyện bên trong tmux** (Hỗ trợ thêm các cờ thay đổi LR và tắt augmentation nếu cần):
     ```bash
+    # Chạy mặc định (LR=0.0002)
     ./setup_and_train.sh --train --batch-size 1024 --epochs 200
+    
+    # Chạy giảm LR (0.0001) và tắt augmentation ở những epoch đầu để dễ hội tụ:
+    ./setup_and_train.sh --train --batch-size 1024 --epochs 200 --lr 0.0001 --no-augment
     ```
 *   **Thoát tạm thời ra ngoài (Detach session)**:
     Ấn tổ hợp phím `Ctrl + B` rồi ấn phím `D`.
@@ -40,7 +44,7 @@ venv/bin/python -m pytest tests/ -v
     tmux ls
     ```
 
-*Note*: Nếu chạy lần đầu, hãy chắc chắn đã `git pull` bản mới nhất và đã kích hoạt môi trường ảo.
+*Note*: Có thể dùng lệnh `./setup_and_train.sh --help` để xem đầy đủ danh sách các tham số hỗ trợ. Nếu chạy lần đầu, hãy chắc chắn đã `git pull` bản mới nhất và đã kích hoạt môi trường ảo.
 
 ### 3. Git Operations
 Khi kết thúc phiên làm việc hoặc cập nhật bản vá lỗi:

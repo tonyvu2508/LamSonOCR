@@ -27,7 +27,7 @@ class Settings:
     # Training
     batch_size: int = 64
     num_epochs: int = 50
-    learning_rate: float = 0.001
+    learning_rate: float = 0.0002
     weight_decay: float = 1e-5
     lr_scheduler_patience: int = 5
     lr_scheduler_factor: float = 0.5
