@@ -52,4 +52,4 @@ class Settings:
                 
         if self.device == "cuda" and self.num_workers == 0:
             import multiprocessing
-            self.num_workers = min(4, multiprocessing.cpu_count())
+            self.num_workers = min(8, multiprocessing.cpu_count())

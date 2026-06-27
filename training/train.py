@@ -130,6 +130,8 @@ class Trainer:
         """
         # Automatically use pin_memory on CUDA to speed up transfer to GPU
         pin_mem = (self.device.type == "cuda")
+        use_persistent = (self.settings.num_workers > 0)
+        prefetch = 4 if use_persistent else None
         
         train_loader = DataLoader(
             train_dataset,
@@ -138,6 +140,8 @@ class Trainer:
             collate_fn=ocr_collate_fn,
             num_workers=self.settings.num_workers,
             pin_memory=pin_mem,
+            persistent_workers=use_persistent,
+            prefetch_factor=prefetch,
         )
 
         val_loader = None
@@ -149,6 +153,8 @@ class Trainer:
                 collate_fn=ocr_collate_fn,
                 num_workers=self.settings.num_workers,
                 pin_memory=pin_mem,
+                persistent_workers=use_persistent,
+                prefetch_factor=prefetch,
             )
 
         history = {"train_loss": [], "val_loss": []}
