@@ -230,4 +230,4 @@ class ETLBinaryDataset(Dataset):
         
         encoded_label = self.charset.encode(label)
         
-        return img_tensor, encoded_label
+        return img_tensor, encoded_label, label
