@@ -3,8 +3,11 @@
 # Default RunPod SSH connection info
 SSH_USER_HOST="1f5kuad6m8zprk-6441169a@ssh.runpod.io"
 SSH_KEY="~/.ssh/id_ed25519"
-REMOTE_PATH="/LamSonOCR/checkpoints/best_model.pt"
-LOCAL_PATH="./checkpoints/best_model.pt"
+REMOTE_PATH="/workspace/LamSonOCR/checkpoints/best_model.pt"
+
+# Resolve local path relative to the script directory
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+LOCAL_PATH="$SCRIPT_DIR/checkpoints/best_model.pt"
 
 # Allow overriding via arguments
 if [ ! -z "$1" ]; then
@@ -19,7 +22,7 @@ echo "📂 Local target: $LOCAL_PATH"
 echo "============================================="
 
 # Ensure local checkpoints directory exists
-mkdir -p ./checkpoints
+mkdir -p "$SCRIPT_DIR/checkpoints"
 
 # Download using SCP with legacy option -O (required for RunPod SFTP subsystem limits)
 scp -O -i "$SSH_KEY" "$SSH_USER_HOST:$REMOTE_PATH" "$LOCAL_PATH"
