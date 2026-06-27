@@ -60,6 +60,36 @@ class Trainer:
         self.use_amp = self.device.type == "cuda"
         self.scaler = torch.cuda.amp.GradScaler(enabled=self.use_amp)
 
+    def load_checkpoint(self, path: str):
+        """Load weights and optimizer state from checkpoint."""
+        print(f"🔄 Loading checkpoint from {path}...")
+        checkpoint = torch.load(path, map_location=self.device)
+        
+        # If model is compiled, we need to load state dict to model.default_collate or similar,
+        # but loading to self.model directly works unless there is torch.compile wrapper prefix differences.
+        # PyTorch 2.0 compile adds '_orig_mod.' prefix.
+        state_dict = checkpoint["model_state_dict"]
+        
+        # Check if the current model has _orig_mod prefix (compiled) and checkpoint does not, or vice versa
+        is_compiled = hasattr(self.model, "_orig_mod") or isinstance(self.model, torch._dynamo.eval_frame.OptimizedModule)
+        has_prefix = any(k.startswith("_orig_mod.") for k in state_dict.keys())
+        
+        if is_compiled and not has_prefix:
+            # Add prefix
+            state_dict = {f"_orig_mod.{k}": v for k, v in state_dict.items()}
+        elif not is_compiled and has_prefix:
+            # Remove prefix
+            state_dict = {k.replace("_orig_mod.", ""): v for k, v in state_dict.items()}
+            
+        self.model.load_state_dict(state_dict)
+        
+        if "optimizer_state_dict" in checkpoint:
+            try:
+                self.optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+                print("✅ Loaded optimizer state.")
+            except Exception as e:
+                print(f"⚠️ Could not load optimizer state (e.g. learning rate/momentum shapes mismatch): {e}")
+
     def _train_one_epoch(self, dataloader: DataLoader) -> float:
         """Train for one epoch, return average loss."""
         self.model.train()

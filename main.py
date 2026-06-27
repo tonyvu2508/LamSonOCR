@@ -73,6 +73,9 @@ def cmd_train(args):
     print(f"🔤 Character classes: {cs.num_classes}")
 
     trainer = Trainer(charset=cs, settings=settings)
+    if args.resume:
+        trainer.load_checkpoint(args.resume)
+        
     history = trainer.train(train_ds, val_ds)
 
     print(f"\n✅ Training complete!")
@@ -149,6 +152,7 @@ def main():
     trn.add_argument("--lr", type=float, default=0.001)
     trn.add_argument("--checkpoint-dir", type=str, default=None)
     trn.add_argument("--etl-dir", type=str, default=None, help="Directory containing raw ETL binary files")
+    trn.add_argument("--resume", type=str, default=None, help="Path to checkpoint file (.pt) to resume training from")
     trn.add_argument("--no-augment", action="store_true")
 
     # Evaluate
