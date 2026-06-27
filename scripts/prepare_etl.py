@@ -14,35 +14,42 @@ from tqdm import tqdm
 import struct
 import multiprocessing as mp
 
-# Mapping from JIS X 0201 Katakana character codes to Hiragana (for ETL4)
-JIS_TO_HIRAGANA = {
-    0xB1: "あ", 0xB2: "い", 0xB3: "う", 0xB4: "え", 0xB5: "お",
-    0xB6: "か", 0xB7: "き", 0xB8: "く", 0xB9: "け", 0xBA: "こ",
-    0xBB: "さ", 0xBC: "し", 0xBD: "す", 0xBE: "せ", 0xBF: "そ",
-    0xC0: "た", 0xC1: "ち", 0xC2: "つ", 0xC3: "て", 0xC4: "と",
-    0xC5: "な", 0xC6: "に", 0xC7: "ぬ", 0xC8: "ね", 0xC9: "の",
-    0xCA: "は", 0xCB: "ひ", 0xCC: "ふ", 0xCD: "へ", 0xCE: "ほ",
-    0xCF: "ま", 0xD0: "み", 0xD1: "む", 0xD2: "め", 0xD3: "mo", # Note: 'mo' but kept mapping key
-    0xD3: "も", 0xD4: "や", 0xD5: "ゆ", 0xD6: "よ",
-    0xD7: "ら", 0xD8: "り", 0xD9: "る", 0xDA: "れ", 0xDB: "ろ",
-    0xDC: "わ", 0xDD: "を", 0xDE: "ん",
-    0xA7: "ぁ", 0xA8: "ぃ", 0xA9: "ぅ", 0xAA: "ぇ", 0xAB: "ぉ",
-    0xAF: "っ", 0xAC: "ゃ", 0xAD: "ゅ", 0xAE: "ょ",
+# Mapping from JIS X 0201 Katakana character codes to full-width Katakana (for ETL4)
+JIS_TO_KATAKANA = {
+    0xB1: "ア", 0xB2: "イ", 0xB3: "ウ", 0xB4: "エ", 0xB5: "オ",
+    0xB6: "カ", 0xB7: "キ", 0xB8: "ク", 0xB9: "ケ", 0xBA: "コ",
+    0xBB: "サ", 0xBC: "シ", 0xBD: "ス", 0xBE: "セ", 0xBF: "ソ",
+    0xC0: "タ", 0xC1: "チ", 0xC2: "ツ", 0xC3: "て", 0xC4: "ト", # Note: 0xC3 is ツ, 0xC4 is ト
+    0xC3: "ツ", 0xC5: "ナ", 0xC6: "ニ", 0xC7: "ヌ", 0xC8: "ネ", 0xC9: "ノ",
+    0xCA: "ハ", 0xCB: "ヒ", 0xCC: "フ", 0xCD: "ヘ", 0xCE: "ホ",
+    0xCF: "マ", 0xD0: "ミ", 0xD1: "ム", 0xD2: "メ", 0xD3: "モ",
+    0xD4: "ヤ", 0xD5: "ユ", 0xD6: "よ", # Note: 0xD6 is ヨ
+    0xD6: "ヨ",
+    0xD7: "ラ", 0xD8: "リ", 0xD9: "ル", 0xDA: "レ", 0xDB: "ロ",
+    0xDC: "ワ", 0xDD: "ヲ", 0xDE: "ン",
+    0xA7: "ァ", 0xA8: "ィ", 0xA9: "ゥ", 0xAA: "ェ", 0xAB: "ォ",
+    0xAF: "ッ", 0xAC: "ャ", 0xAD: "ュ", 0xAE: "ョ",
 }
 
 def decode_char(char_code) -> str:
     """Decode JIS character code to string."""
+    if not char_code or char_code == b'\x00\x00' or char_code == b'\x00' or char_code == 0:
+        return None
+        
     if isinstance(char_code, bytes):
         try:
             # 2-byte JIS X 0208 (Kanji/Hiragana)
             jis_bytes = b'\x1b\x24\x42' + char_code + b'\x1b\x28\x42'
-            return jis_bytes.decode('iso2022_jp')
+            decoded = jis_bytes.decode('iso2022_jp')
+            # Strip null bytes and whitespace
+            decoded = decoded.replace('\x00', '').strip()
+            return decoded if decoded else None
         except Exception:
             return None
 
-    # 1. Check if it's in our Katakana -> Hiragana map (ETL4)
-    if char_code in JIS_TO_HIRAGANA:
-        return JIS_TO_HIRAGANA[char_code]
+    # 1. Check if it's in our Katakana map (ETL4)
+    if char_code in JIS_TO_KATAKANA:
+        return JIS_TO_KATAKANA[char_code]
         
     # 2. Check if it's standard ASCII (ETL3 Alphanumeric)
     if 32 <= char_code <= 126:
