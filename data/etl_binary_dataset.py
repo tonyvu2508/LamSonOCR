@@ -177,8 +177,8 @@ class ETLBinaryDataset(Dataset):
             record = record.ljust(record_size, b'\x00')
             
         if mode == "M-Type":
-            # 2016 bytes starting at offset 38. 63x64 pixels. 4-bit per pixel
-            img_bytes = record[38:38+2016]
+            # 2016 bytes starting at offset 32. 63x64 pixels. 4-bit per pixel
+            img_bytes = record[32:32+2016]
             # Convert 4-bit to 8-bit
             # Each byte has 2 pixels. High nibble, low nibble.
             arr = np.frombuffer(img_bytes, dtype=np.uint8)
