@@ -77,7 +77,8 @@ class ETLBinaryDataset(Dataset):
 
         etl_files = sorted(list(self.etl_dir.rglob("*")))
         for f in etl_files:
-            if not f.is_file() or f.name.endswith(".zip"):
+            name_upper = f.name.upper()
+            if not f.is_file() or name_upper.endswith(".ZIP") or "INFO" in name_upper or name_upper.endswith(".TXT") or name_upper.endswith(".JSON"):
                 continue
                 
             file_size = os.path.getsize(f)
@@ -171,6 +172,10 @@ class ETLBinaryDataset(Dataset):
         # Read exact slice from memory map
         record = mm[byte_offset : byte_offset + record_size]
         
+        # Safety check: if record is truncated at EOF, pad it with zeros
+        if len(record) < record_size:
+            record = record.ljust(record_size, b'\x00')
+            
         if mode == "M-Type":
             # 2016 bytes starting at offset 38. 63x64 pixels. 4-bit per pixel
             img_bytes = record[38:38+2016]
