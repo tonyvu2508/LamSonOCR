@@ -155,7 +155,12 @@ class Trainer:
         best_loss = float("inf")
         patience_counter = 0
 
+        import time
+        epoch_durations = []
+
         for epoch in range(self.settings.num_epochs):
+            epoch_start = time.time()
+
             # Train
             train_loss = self._train_one_epoch(train_loader)
             history["train_loss"].append(train_loss)
@@ -171,12 +176,32 @@ class Trainer:
                 self.scheduler.step(train_loss)
                 monitor_loss = train_loss
 
+            # Calculate remaining time (ETA)
+            epoch_duration = time.time() - epoch_start
+            epoch_durations.append(epoch_duration)
+            
+            avg_epoch_time = sum(epoch_durations) / len(epoch_durations)
+            epochs_remaining = self.settings.num_epochs - (epoch + 1)
+            eta_seconds = epochs_remaining * avg_epoch_time
+            
+            # Format ETA
+            if epochs_remaining == 0:
+                eta_str = "0s"
+            else:
+                eta_mins = int(eta_seconds // 60)
+                eta_hours = int(eta_mins // 60)
+                eta_mins = eta_mins % 60
+                if eta_hours > 0:
+                    eta_str = f"{eta_hours}h {eta_mins}m"
+                else:
+                    eta_str = f"{eta_mins}m"
+
             # Print progress
             msg = f"Epoch {epoch + 1}/{self.settings.num_epochs} - train_loss: {train_loss:.4f}"
             if val_loss is not None:
                 msg += f" - val_loss: {val_loss:.4f}"
             lr = self.optimizer.param_groups[0]["lr"]
-            msg += f" - lr: {lr:.6f}"
+            msg += f" - lr: {lr:.6f} - ETA: {eta_str}"
             print(msg)
 
             # Save best model
