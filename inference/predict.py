@@ -30,7 +30,14 @@ class OCRPredictor:
         
         num_classes = checkpoint.get("charset_size", self.charset.num_classes)
         self.model = CRNN(num_classes=num_classes)
-        self.model.load_state_dict(checkpoint["model_state_dict"])
+        
+        # Strip _orig_mod. prefix from checkpoint if present (caused by torch.compile on RunPod)
+        state_dict = checkpoint["model_state_dict"]
+        has_prefix = any(k.startswith("_orig_mod.") for k in state_dict.keys())
+        if has_prefix:
+            state_dict = {k.replace("_orig_mod.", ""): v for k, v in state_dict.items()}
+            
+        self.model.load_state_dict(state_dict)
         self.model.to(self.device)
         self.model.eval()
 
