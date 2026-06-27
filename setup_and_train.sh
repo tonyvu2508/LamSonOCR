@@ -166,7 +166,7 @@ if [ "$DEVICE" = "cuda" ]; then
     venv/bin/python -c "import torch; print('   GPU Device Name:', torch.cuda.get_device_name(0))"
 fi
 
-venv/bin/python main.py train --train-data data/all_train --epochs 50 --batch-size 256 "${MAIN_ARGS[@]}"
+venv/bin/python main.py train --train-data data/all_train --epochs 200 --batch-size 256 "${MAIN_ARGS[@]}"
 
 # 7. Execute Benchmark / Evaluation
 echo "📋 Automatically Running Benchmark & Evaluation..."
